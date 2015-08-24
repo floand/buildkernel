@@ -53,7 +53,7 @@ copies a .config file from the currently running kernel (via \fI/proc/config.gz\
 conforms the .config, by setting/unsetting various key parameters that are required for the kernel to boot successfully in EFI mode, including the somewhat complex kernel command line (which contains directives targeted both at the kernel, and at the \fBinit\fR(8) script provided by \fBgenkernel\fR(8)); required settings for
 \fBsystemd\fR(1) are also conformed;
 .IP \(bu 2
-calls your user hook function \fBuser_conform_config_file\fR if you have defined it in \fI/etc/genkernel.conf\fR (you'll only generally want to do this to override unwanted changes made by \fBbuildkernel\fR in the above step; other changes should be made via the standard \fBmake menuconfig\fR route, per the step below; they will be persisted);
+calls your user hook function \fBuser_conform_config_file\fR if you have defined it in \fI/etc/buildkernel.conf\fR (you'll only generally want to do this to override unwanted changes made by \fBbuildkernel\fR in the above step; other changes should be made via the standard \fBmake menuconfig\fR route, per the step below; they will be persisted);
 .IP \(bu 2
 allows you to modify the resulting configuration using the standard \fBmake menuconfig\fR tool (you can force this to happen, even in non-interactive mode, with \fB--menuconfig\fR, and you will be asked whether you wish to do so in interactive mode (set by \fB--ask\fR)); if you choose not to run \fBmake menuconfig\fR, \fBmake olddefconfig\fR will be run instead (which silently sanitizes/upgrades the conformed \fB.config\fR);
 .IP \(bu 2
@@ -69,7 +69,7 @@ unpacks the initramfs, to the \fI/boot/initramfs\fR directory;
 .IP \(bu 2
 modifies the initramfs by copying the \fI/etc/modprobe.d\fR directory contents across to it, and the static v1.x \fBgpg\fR(1) binary mentioned earlier (if this does not already exist, \fBbuildkernel\fR will create it);
 .IP \(bu 2
-calls your user hook function \fBuser_modify_initramfs\fR if you have defined it in \fI/etc/genkernel.conf\fR (you don't need it to make the boot work);
+calls your user hook function \fBuser_modify_initramfs\fR if you have defined it in \fI/etc/buildkernel.conf\fR (you don't need it to make the boot work);
 .IP \(bu 2
 repacks the initramfs into \fI/boot/initramfs.cpio\fR (the unpacked copy is left at \fI/boot/initramfs\fR too, for reference, since it's useful to be able to see what is in this archive at a glance);
 .IP \(bu 2
