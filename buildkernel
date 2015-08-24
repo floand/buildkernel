@@ -480,7 +480,7 @@ find_all_usb_partitions() {
         unset -v "ISUSBPART[${U}]"
     done
     local NEXTID
-    for NEXTID in "${DISKIDDEVDIR}/usb-"*"-part"*[[:digit:]]; do
+    for NEXTID in $(echo "${DISKIDDEVDIR}/usb-"*"-part"*[[:digit:]]); do
         if [ -e "${NEXTID}" ]; then
             # remember this
             local NEXTCANONPART="$(readlink --canonicalize "${NEXTID}")"
@@ -2064,7 +2064,7 @@ exit_zero_if_new_kernel_available() {
     # exit with code 0 if it is not (i.e., a new kernel IS available), or 1
     # if it is
     if [[ "${CURRENTVERSION}" != "${NEWVERSION}" && \
-        (-s "${BOOTDIR}/${VMLINUZNAME}" || -s "${BOOTDIR}/${VMLINUZNAME}${SIGNEDSUFFIX}")]]; then
+        (-s "${BOOTDIR}/${VMLINUZNAME}" || -s "${BOOTDIR}/${VMLINUZNAME}${SIGNEDSUFFIX}") ]]; then
         cleanup_and_exit_with_code 0
     else
         # up to date, or no new kernel available, so th
