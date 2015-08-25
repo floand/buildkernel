@@ -447,7 +447,10 @@ setup_final_variables() {
     KEYFILEPARTUUID="${KEYFILEPARTUUID:-${EFIPARTUUID}}"
     KEYFILEPATHMAP="${PARTUUIDDEVDIR}/${KEYFILEPARTUUID}"
     # we use path syntax rather than "=PARTUUID=" syntax, as more reliable
-    KERNEL_CMD_LINE="root=${CMDLINE_ROOT} crypt_root=${CRYPTPATHMAP} dolvm "
+    KERNEL_CMD_LINE="root=${CMDLINE_ROOT} crypt_root=${CRYPTPATHMAP} "
+    if [ "${CMDLINE_DOLVM_FLAG}" = "dolvm" ]; then
+        KERNEL_CMD_LINE+="dolvm "
+    fi
     KERNEL_CMD_LINE+="real_root=${CMDLINE_REAL_ROOT} rootfstype=${CMDLINE_ROOTFSTYPE} "
     KERNEL_CMD_LINE+="real_init=${CMDLINE_REAL_INIT} "
     if [ -n "${LUKSKEYFILE}" ]; then
@@ -1741,12 +1744,16 @@ create_initramfs_using_genkernel() {
     if [ -n "${PLYMOUTHTHEME}" ]; then
         PLYMOUTH_OPTS="--plymouth --plymouth-theme=${PLYMOUTHTHEME}"
     fi
+    local LVM_OPTS="--lvm"
+    if [ "${CMDLINE_DOLVM_FLAG}" != "dolvm" ]; then
+        LVM_OPTS="--no-lvm"
+    fi
     local POSTCLEAR_FLAG=""
     if ((ARG_POSTCLEAR==1)); then
         POSTCLEAR_FLAG="--postclear" # clear all caches after genkenrel run
     fi
     genkernel --install --no-mountboot \
-        --luks --lvm  --no-gpg --udev ${POSTCLEAR_FLAG} \
+        --luks ${LVM_OPTS} --no-gpg --udev ${POSTCLEAR_FLAG} \
         --kernel-config="${TARGETCONFIG}" --busybox \
         --no-compress-initramfs ${ADDITIONALGENKERNELOPTS} \
         ${PLYMOUTH_OPTS} initramfs
