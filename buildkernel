@@ -54,7 +54,7 @@ DISKIDDEVDIR="/dev/disk/by-id"
 IDDEVDIR="/dev/disk/by-id"
 DEFAULTLUKSKEYFILE="luks-key.gpg"
 LUKSKEYFILE="${DEFAULTLUKSKEYFILE}"
-MODPROBEDIR="/etc/modprobe.d"
+MODPROBEDIRS="$(echo /{etc,lib,run}/modprobe.d)"
 CMDLINE_ROOT="/dev/ram0"
 SYSTEMD_INIT="/usr/lib/systemd/systemd"
 OPENRC_INIT="/sbin/init"
@@ -1787,10 +1787,18 @@ modify_initramfs() {
     fi
     show "Copying static gpg program into initramfs..."
     cp ${VERBOSITYFLAG} "${GPG1PATHFROM}" "${GPG1PATHTO}"
-    show "Copying contents of ${MODPROBEDIR} directory into initramfs..."
-    if [ "$(ls -A ${MODPROBEDIR})" ]; then
-        cp ${VERBOSITYFLAG} "${MODPROBEDIR}"/* "${INITRAMFSDIR}${MODPROBEDIR}/"
-    fi
+    local SRC_DIR DST_DIR FILES
+    for SRC_DIR in ${MODPROBEDIRS}; do
+        [ -d "${SRC_DIR}" ] || continue
+        # filter only file(-symlink)s recognised by modprobe
+        FILES="$(find -L "${SRC_DIR}/" -maxdepth 1 -type f -name '[^.]*.conf')"
+        if [ "${FILES}" ]; then
+            show "Copying supported files from ${SRC_DIR} directory into initramfs..."
+            DST_DIR="${INITRAMFSDIR}${SRC_DIR}"
+            mkdir -p "${DST_DIR}"
+            xargs cp ${VERBOSITYFLAG} -t "${DST_DIR}/" <<<"${FILES}"
+        fi
+    done
     # you can define user_modify_initramfs in your buildkernel.conf file...
     if fn_exists user_modify_initramfs; then
         show "Calling user_modify_initramfs function..."
